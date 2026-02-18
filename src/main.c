@@ -3,7 +3,7 @@
 #include "c-polyfill.h"
 #include "signal-handler.h"
 #include "generate.h"
-#include "run.h"
+#include "run/run.h"
 
 #define GENERATE false
 
