@@ -4,7 +4,7 @@
 #include "../signal-handler.h"
 #include "../debug-log.h"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE (4 * 1024)
 
 void streamFile(FILE *file, FileStreamChunkObserver observer)
 {
