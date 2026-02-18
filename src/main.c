@@ -4,6 +4,7 @@
 #include "signal-handler.h"
 #include "generate.h"
 #include "config.h"
+#include "debug-log.h"
 #include "run/run.h"
 
 int main()
@@ -11,7 +12,12 @@ int main()
     initSignals();
 
     if (GENERATE)
+    {
+        debugPrintf("Generating inputs\n");
         generateInputs();
+    }
+    else
+        debugPrintf("Skipping generating inputs\n");
 
     struct RunResult result = run();
     printf("{");
