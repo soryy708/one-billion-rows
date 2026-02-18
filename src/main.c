@@ -3,9 +3,8 @@
 #include "c-polyfill.h"
 #include "signal-handler.h"
 #include "generate.h"
+#include "config.h"
 #include "run/run.h"
-
-#define GENERATE false
 
 int main()
 {
