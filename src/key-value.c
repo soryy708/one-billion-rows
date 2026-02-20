@@ -20,9 +20,17 @@ struct KeyValueBucket
     size_t length;
 };
 
+struct KeyValueCache
+{
+    char *key;
+    NUMERIC_HASH hash;
+    size_t positionInBucket;
+};
+
 struct KeyValue
 {
     struct KeyValueBucket *buckets;
+    struct KeyValueCache cache;
 };
 
 struct KeyValue *keyValueConstructor()
@@ -45,11 +53,16 @@ struct KeyValue *keyValueConstructor()
         kv->buckets[i].entries = nullptr;
         kv->buckets[i].length = 0;
     }
+    kv->cache.key = nullptr;
+    kv->cache.hash = 0;
+    kv->cache.positionInBucket = -1;
     return kv;
 }
 
-NUMERIC_HASH hashKey(char *key)
+NUMERIC_HASH hashKey(struct KeyValue *kv, char *key)
 {
+    if (kv->cache.key != nullptr && kv->cache.key == key)
+        return kv->cache.hash;
     NUMERIC_HASH hash = 0;
     for (size_t i = 0; key[i] != '\0'; ++i)
         hash += key[i];
@@ -60,10 +73,20 @@ bool keyValueHas(struct KeyValue *kv, char *key)
 {
     if (kv == nullptr)
         return false;
-    NUMERIC_HASH hash = hashKey(key);
+    if (key == kv->cache.key)
+        return kv->cache.positionInBucket != -1;
+    NUMERIC_HASH hash = hashKey(kv, key);
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
+        {
+            kv->cache.key = key;
+            kv->cache.hash = hash;
+            kv->cache.positionInBucket = j;
             return true;
+        }
+    kv->cache.key = key;
+    kv->cache.hash = hash;
+    kv->cache.positionInBucket = -1;
     return false;
 }
 
@@ -71,10 +94,25 @@ void *keyValueGet(struct KeyValue *kv, char *key)
 {
     if (kv == nullptr)
         return false;
-    NUMERIC_HASH hash = hashKey(key);
+    if (key == kv->cache.key)
+    {
+        if (kv->cache.positionInBucket != -1)
+            return kv->buckets[kv->cache.hash].entries[kv->cache.positionInBucket].value;
+        else
+            return nullptr;
+    }
+    NUMERIC_HASH hash = hashKey(kv, key);
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
+        {
+            kv->cache.key = key;
+            kv->cache.hash = hash;
+            kv->cache.positionInBucket = j;
             return kv->buckets[hash].entries[j].value;
+        }
+    kv->cache.key = key;
+    kv->cache.hash = hash;
+    kv->cache.positionInBucket = -1;
     return nullptr;
 }
 
@@ -82,12 +120,15 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
 {
     if (kv == nullptr)
         return;
-    NUMERIC_HASH hash = hashKey(key);
+    NUMERIC_HASH hash = hashKey(kv, key);
 
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
         {
             kv->buckets[hash].entries[j].value = value;
+            kv->cache.key = key;
+            kv->cache.hash = hash;
+            kv->cache.positionInBucket = j;
             return;
         }
 
@@ -107,6 +148,9 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
     }
     kv->buckets[hash].entries[kv->buckets[hash].length].key = key;
     kv->buckets[hash].entries[kv->buckets[hash].length].value = value;
+    kv->cache.key = key;
+    kv->cache.hash = hash;
+    kv->cache.positionInBucket = kv->buckets[hash].length;
     ++kv->buckets[hash].length;
     return;
 }
