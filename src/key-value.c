@@ -218,6 +218,8 @@ struct KeyValueEntry *keyValueEntries(struct KeyValue *kv)
         return nullptr;
 
     size_t length = keyValueLength(kv);
+    if (length == 0)
+        return nullptr;
 
     struct KeyValueEntry *entries = malloc(sizeof(struct KeyValueEntry) * length);
     size_t c = 0;
