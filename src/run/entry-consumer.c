@@ -16,7 +16,7 @@ void consumeEntry(char *station, float measurement)
 {
     if (stations == nullptr)
     {
-        stations = keyValueConstructor();
+        stations = keyValueConstructor((struct KeyValueOptions){256});
     }
     if (keyValueHas(stations, station))
     {

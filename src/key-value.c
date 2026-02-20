@@ -4,8 +4,6 @@
 #include "c-polyfill.h"
 #include "panic.h"
 
-#define MAX_BUCKETS 256
-
 typedef unsigned short NUMERIC_HASH;
 
 struct InternalKeyValueEntry
@@ -30,10 +28,11 @@ struct KeyValueCache
 struct KeyValue
 {
     struct KeyValueBucket *buckets;
+    size_t maxBuckets;
     struct KeyValueCache cache;
 };
 
-struct KeyValue *keyValueConstructor()
+struct KeyValue *keyValueConstructor(struct KeyValueOptions options)
 {
     struct KeyValue *kv = malloc(sizeof(struct KeyValue));
     if (kv == nullptr)
@@ -41,14 +40,15 @@ struct KeyValue *keyValueConstructor()
         panic("OOM");
         return nullptr;
     }
-    kv->buckets = malloc(sizeof(struct KeyValueBucket) * MAX_BUCKETS);
+    kv->maxBuckets = options.maxBuckets;
+    kv->buckets = malloc(sizeof(struct KeyValueBucket) * kv->maxBuckets);
     if (kv->buckets == nullptr)
     {
         free(kv);
         panic("OOM");
         return nullptr;
     }
-    for (size_t i = 0; i < MAX_BUCKETS; ++i)
+    for (size_t i = 0; i < kv->maxBuckets; ++i)
     {
         kv->buckets[i].entries = nullptr;
         kv->buckets[i].length = 0;
@@ -66,7 +66,7 @@ NUMERIC_HASH hashKey(struct KeyValue *kv, char *key)
     NUMERIC_HASH hash = 0;
     for (size_t i = 0; key[i] != '\0'; ++i)
         hash += key[i];
-    return hash % MAX_BUCKETS;
+    return hash % kv->maxBuckets;
 }
 
 bool keyValueHas(struct KeyValue *kv, char *key)
@@ -164,7 +164,7 @@ struct KeyValueEntry *keyValueEntries(struct KeyValue *kv)
 
     struct KeyValueEntry *entries = malloc(sizeof(struct KeyValueEntry) * length);
     size_t c = 0;
-    for (size_t i = 0; i < MAX_BUCKETS; ++i)
+    for (size_t i = 0; i < kv->maxBuckets; ++i)
         for (size_t j = 0; j < kv->buckets[i].length; ++j)
             entries[c++] = (struct KeyValueEntry){
                 kv->buckets[i].entries[j].key,
@@ -177,7 +177,7 @@ unsigned int keyValueLength(struct KeyValue *kv)
     if (kv == nullptr)
         return 0;
     size_t length = 0;
-    for (size_t i = 0; i < MAX_BUCKETS; ++i)
+    for (size_t i = 0; i < kv->maxBuckets; ++i)
         length += kv->buckets[i].length;
     return length;
 }

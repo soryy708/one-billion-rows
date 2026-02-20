@@ -11,7 +11,12 @@ struct KeyValueEntry
     void *value;
 };
 
-struct KeyValue *keyValueConstructor();
+struct KeyValueOptions
+{
+    size_t maxBuckets;
+};
+
+struct KeyValue *keyValueConstructor(struct KeyValueOptions options);
 bool keyValueHas(struct KeyValue *kv, char *key);
 void *keyValueGet(struct KeyValue *kv, char *key);
 void keyValueSet(struct KeyValue *kv, char *key, void *value);
