@@ -84,7 +84,7 @@ void generateInputs(void)
     {
         debugPrintf("Writing row %d\t%.1f%%\n", i, 100.0f * i / 1000000000);
         char *stationName = cityNames[rand() % cityNamesLength];
-        printf("%s;%d.%d\n", stationName, rand() % 100, rand() % 10);
+        printf("%s;%s%d.%d\n", stationName, (rand() % 2 == 0 ? "-" : ""), rand() % 100, rand() % 10);
     }
 
     freeCityNames();
