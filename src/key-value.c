@@ -80,11 +80,23 @@ numeric_hash hashKey(struct KeyValue *kv, char *key)
 
 size_t findKeyInBucket(struct KeyValue *kv, char *key, size_t bucket)
 {
-    for (size_t j = 0; j < kv->buckets[bucket].length; ++j)
-        if (strcmp(key, kv->buckets[bucket].entries[j].key) == 0)
-        {
-            return j;
-        }
+    if (!kv || kv->buckets[bucket].length == 0)
+        return -1;
+
+    // Binary search
+    int low = 0;
+    int high = kv->buckets[bucket].length - 1;
+    while (low <= high)
+    {
+        int mid = low + (high - low) / 2;
+        int stringOrder = strcmp(key, kv->buckets[bucket].entries[mid].key);
+        if (stringOrder == 0)
+            return mid;
+        if (stringOrder < 0)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
     return -1;
 }
 
