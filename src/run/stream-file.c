@@ -24,7 +24,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
         return panic("OOM");
     for (unsigned int i = 0; i < lastPosition / bufferSize && !signalledToStop(); ++i)
     {
-        debugPrintf("Reading file %.1f%%\n", (i * bufferSize) / lastPosition);
+        debugPrintf("Reading file %.1f%%\n", 100.0f * (i * bufferSize) / lastPosition);
 
         char *address = mmap(nullptr, bufferSize, PROT_READ, MAP_PRIVATE, fileno(file), i * bufferSize);
         if (address == MAP_FAILED)
