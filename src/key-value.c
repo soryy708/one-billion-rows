@@ -145,21 +145,51 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
         kv->buckets[hash].entries = malloc(sizeof(struct InternalKeyValueEntry));
         if (kv->buckets[hash].entries == nullptr)
             return panic("OOM");
+        kv->buckets[hash].entries[0].key = key;
+        kv->buckets[hash].entries[0].value = value;
+        kv->cache.key = key;
+        kv->cache.hash = hash;
+        kv->cache.positionInBucket = 0;
+        kv->buckets[hash].length = 1;
     }
     else
     {
-        struct InternalKeyValueEntry *temp = realloc(kv->buckets[hash].entries, sizeof(struct InternalKeyValueEntry) * (kv->buckets[hash].length + 1));
+        // Binary search
+        int low = 0;
+        int high = kv->buckets[hash].length - 1;
+        while (low <= high)
+        {
+            int mid = low + (high - low) / 2;
+            int stringOrder = strcmp(key, kv->buckets[hash].entries[mid].key);
+            if (stringOrder < 0)
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+        int splicePosition = low;
+
+        struct InternalKeyValueEntry *temp = realloc(
+            kv->buckets[hash].entries,
+            (kv->buckets[hash].length + 1) * sizeof(struct InternalKeyValueEntry));
         if (temp == nullptr)
             return panic("OOM");
         kv->buckets[hash].entries = temp;
+
+        if (splicePosition < kv->buckets[hash].length)
+        {
+            memmove(
+                &kv->buckets[hash].entries[splicePosition + 1],
+                &kv->buckets[hash].entries[splicePosition],
+                (kv->buckets[hash].length - splicePosition) * sizeof(struct InternalKeyValueEntry));
+        }
+
+        kv->buckets[hash].entries[splicePosition].key = key;
+        kv->buckets[hash].entries[splicePosition].value = value;
+        kv->cache.key = key;
+        kv->cache.hash = hash;
+        kv->cache.positionInBucket = splicePosition;
+        ++kv->buckets[hash].length;
     }
-    kv->buckets[hash].entries[kv->buckets[hash].length].key = key;
-    kv->buckets[hash].entries[kv->buckets[hash].length].value = value;
-    kv->cache.key = key;
-    kv->cache.hash = hash;
-    kv->cache.positionInBucket = kv->buckets[hash].length;
-    ++kv->buckets[hash].length;
-    return;
 }
 
 struct KeyValueEntry *keyValueEntries(struct KeyValue *kv)
