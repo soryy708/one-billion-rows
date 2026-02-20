@@ -16,7 +16,6 @@ struct InternalKeyValueEntry
 
 struct KeyValueBucket
 {
-    NUMERIC_HASH hash;
     struct InternalKeyValueEntry *entries;
     size_t length;
 };
@@ -24,7 +23,6 @@ struct KeyValueBucket
 struct KeyValue
 {
     struct KeyValueBucket *buckets;
-    size_t length;
 };
 
 struct KeyValue *keyValueConstructor()
@@ -35,8 +33,18 @@ struct KeyValue *keyValueConstructor()
         panic("OOM");
         return nullptr;
     }
-    kv->buckets = nullptr;
-    kv->length = 0;
+    kv->buckets = malloc(sizeof(struct KeyValueBucket) * MAX_BUCKETS);
+    if (kv->buckets == nullptr)
+    {
+        free(kv);
+        panic("OOM");
+        return nullptr;
+    }
+    for (size_t i = 0; i < MAX_BUCKETS; ++i)
+    {
+        kv->buckets[i].entries = nullptr;
+        kv->buckets[i].length = 0;
+    }
     return kv;
 }
 
@@ -53,14 +61,9 @@ bool keyValueHas(struct KeyValue *kv, char *key)
     if (kv == nullptr)
         return false;
     NUMERIC_HASH hash = hashKey(key);
-    for (size_t i = 0; i < kv->length; ++i)
-        if (hash == kv->buckets[i].hash)
-        {
-            for (size_t j = 0; j < kv->buckets[i].length; ++j)
-                if (strcmp(key, kv->buckets[i].entries[j].key) == 0)
-                    return true;
-            return false;
-        }
+    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
+        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
+            return true;
     return false;
 }
 
@@ -69,14 +72,9 @@ void *keyValueGet(struct KeyValue *kv, char *key)
     if (kv == nullptr)
         return false;
     NUMERIC_HASH hash = hashKey(key);
-    for (size_t i = 0; i < kv->length; ++i)
-        if (hash == kv->buckets[i].hash)
-        {
-            for (size_t j = 0; j < kv->buckets[i].length; ++j)
-                if (strcmp(key, kv->buckets[i].entries[j].key) == 0)
-                    return kv->buckets[i].entries[j].value;
-            return nullptr;
-        }
+    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
+        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
+            return kv->buckets[hash].entries[j].value;
     return nullptr;
 }
 
@@ -85,59 +83,44 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
     if (kv == nullptr)
         return;
     NUMERIC_HASH hash = hashKey(key);
-    for (size_t i = 0; i < kv->length; ++i)
-        if (hash == kv->buckets[i].hash)
+
+    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
+        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
         {
-            for (size_t j = 0; j < kv->buckets[i].length; ++j)
-                if (strcmp(key, kv->buckets[i].entries[j].key) == 0)
-                {
-                    kv->buckets[i].entries[j].value = value;
-                    return;
-                }
-            // Allocate in existing bucket
-            struct InternalKeyValueEntry *temp = realloc(kv->buckets[i].entries, sizeof(struct InternalKeyValueEntry) * (kv->buckets[i].length + 1));
-            if (temp == nullptr)
-                return panic("OOM");
-            kv->buckets[i].entries = temp;
-            kv->buckets[i].entries[kv->buckets[i].length].key = key;
-            kv->buckets[i].entries[kv->buckets[i].length].value = value;
-            ++kv->buckets[i].length;
+            kv->buckets[hash].entries[j].value = value;
             return;
         }
-    // Allocate new bucket
-    if (kv->buckets == nullptr)
+
+    // Allocate in existing bucket
+    if (kv->buckets[hash].entries == nullptr)
     {
-        kv->buckets = malloc(sizeof(struct KeyValueBucket));
-        if (kv->buckets == nullptr)
+        kv->buckets[hash].entries = malloc(sizeof(struct InternalKeyValueEntry));
+        if (kv->buckets[hash].entries == nullptr)
             return panic("OOM");
     }
     else
     {
-        struct KeyValueBucket *temp = realloc(kv->buckets, sizeof(struct KeyValueBucket) * (kv->length + 1));
+        struct InternalKeyValueEntry *temp = realloc(kv->buckets[hash].entries, sizeof(struct InternalKeyValueEntry) * (kv->buckets[hash].length + 1));
         if (temp == nullptr)
             return panic("OOM");
-        kv->buckets = temp;
+        kv->buckets[hash].entries = temp;
     }
-    kv->buckets[kv->length].entries = malloc(sizeof(struct InternalKeyValueEntry));
-    if (kv->buckets[kv->length].entries == nullptr)
-        return panic("OOM");
-    kv->buckets[kv->length].entries[0].key = key;
-    kv->buckets[kv->length].entries[0].value = value;
-    kv->buckets[kv->length].hash = hash;
-    kv->buckets[kv->length].length = 1;
-    ++kv->length;
+    kv->buckets[hash].entries[kv->buckets[hash].length].key = key;
+    kv->buckets[hash].entries[kv->buckets[hash].length].value = value;
+    ++kv->buckets[hash].length;
+    return;
 }
 
 struct KeyValueEntry *keyValueEntries(struct KeyValue *kv)
 {
-    if (kv == nullptr || kv->length == 0)
+    if (kv == nullptr)
         return nullptr;
 
     size_t length = keyValueLength(kv);
 
     struct KeyValueEntry *entries = malloc(sizeof(struct KeyValueEntry) * length);
     size_t c = 0;
-    for (size_t i = 0; i < kv->length; ++i)
+    for (size_t i = 0; i < MAX_BUCKETS; ++i)
         for (size_t j = 0; j < kv->buckets[i].length; ++j)
             entries[c++] = (struct KeyValueEntry){
                 kv->buckets[i].entries[j].key,
@@ -150,7 +133,7 @@ unsigned int keyValueLength(struct KeyValue *kv)
     if (kv == nullptr)
         return 0;
     size_t length = 0;
-    for (size_t i = 0; i < kv->length; ++i)
+    for (size_t i = 0; i < MAX_BUCKETS; ++i)
         length += kv->buckets[i].length;
     return length;
 }
