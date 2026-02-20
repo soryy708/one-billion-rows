@@ -51,5 +51,5 @@ long int getProfileElapsedTime(struct ProfileMeasurement *profile)
     {
         return 0;
     }
-    return (profile->start.tv_usec - profile->end.tv_usec);
+    return (profile->end.tv_usec - profile->start.tv_usec);
 }
