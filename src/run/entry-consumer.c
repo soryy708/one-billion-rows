@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "entry-consumer.h"
 #include "../key-value.h"
 #include "../c-polyfill.h"
@@ -40,6 +41,11 @@ void consumeEntry(char *station, float measurement)
     }
 }
 
+int compareRunResultEntries(const struct RunResultEntry *a, const struct RunResultEntry *b)
+{
+    return strcmp(a->station, b->station);
+}
+
 struct RunResult collectConsumedEntries()
 {
     struct RunResult result = (struct RunResult){nullptr, 0};
@@ -57,6 +63,7 @@ struct RunResult collectConsumedEntries()
         result.entries[i].maximum = value->maximum;
         result.entries[i].mean = value->sum / value->count;
     }
+    qsort(result.entries, kvLength, sizeof(struct RunResultEntry), compareRunResultEntries);
     return result;
 }
 
