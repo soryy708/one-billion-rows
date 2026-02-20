@@ -31,6 +31,7 @@ int main()
         }
     }
     printf("}");
+    free(result.entries);
 
     return 0;
 }
