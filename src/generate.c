@@ -6,6 +6,7 @@
 #include "c-polyfill.h"
 #include "panic.h"
 #include "signal-handler.h"
+#include "debug-log.h"
 
 // https://simplemaps.com/data/world-cities
 char **cityNames = nullptr;
@@ -81,6 +82,7 @@ void generateInputs(void)
     // 1B rows of <string: station name>;<double: measurement>
     for (unsigned int i = 0; i < 1000000000u && !signalledToStop(); ++i)
     {
+        debugPrintf("Writing row %d\t%.1f%%\n", i, 100.0f * i / 1000000000);
         char *stationName = cityNames[rand() % cityNamesLength];
         printf("%s;%d.%d\n", stationName, rand() % 100, rand() % 10);
     }
