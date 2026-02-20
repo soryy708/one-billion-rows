@@ -38,5 +38,7 @@ struct RunResult run(void)
     fclose(file);
     cleanupFileStreamChunkToLine();
 
-    return collectConsumedEntries();
+    struct RunResult result = collectConsumedEntries();
+    cleanUpConsumedEntities();
+    return result;
 }

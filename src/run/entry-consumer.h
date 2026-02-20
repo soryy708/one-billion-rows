@@ -5,5 +5,6 @@
 
 void consumeEntry(char *station, float measurement);
 struct RunResult collectConsumedEntries();
+void cleanUpConsumedEntities();
 
 #endif

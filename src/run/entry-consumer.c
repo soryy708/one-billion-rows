@@ -56,3 +56,12 @@ struct RunResult collectConsumedEntries()
     }
     return result;
 }
+
+void cleanUpConsumedEntities()
+{
+    if (stations != nullptr)
+    {
+        keyValueDeconstructor(stations);
+        stations = nullptr;
+    }
+}

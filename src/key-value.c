@@ -59,6 +59,15 @@ struct KeyValue *keyValueConstructor(struct KeyValueOptions options)
     return kv;
 }
 
+void keyValueDeconstructor(struct KeyValue *kv)
+{
+    if (kv == nullptr)
+        return;
+    for (size_t i = 0; i < kv->maxBuckets; ++i)
+        free(kv->buckets[i].entries);
+    free(kv->buckets);
+}
+
 NUMERIC_HASH hashKey(struct KeyValue *kv, char *key)
 {
     if (kv->cache.key != nullptr && kv->cache.key == key)

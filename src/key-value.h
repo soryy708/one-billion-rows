@@ -17,6 +17,7 @@ struct KeyValueOptions
 };
 
 struct KeyValue *keyValueConstructor(struct KeyValueOptions options);
+void keyValueDeconstructor(struct KeyValue *kv);
 bool keyValueHas(struct KeyValue *kv, char *key);
 void *keyValueGet(struct KeyValue *kv, char *key);
 void keyValueSet(struct KeyValue *kv, char *key, void *value);
