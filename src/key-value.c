@@ -78,6 +78,16 @@ numeric_hash hashKey(struct KeyValue *kv, char *key)
     return hash % kv->maxBuckets;
 }
 
+size_t findKeyInBucket(struct KeyValue *kv, char *key, size_t bucket)
+{
+    for (size_t j = 0; j < kv->buckets[bucket].length; ++j)
+        if (strcmp(key, kv->buckets[bucket].entries[j].key) == 0)
+        {
+            return j;
+        }
+    return -1;
+}
+
 bool keyValueHas(struct KeyValue *kv, char *key)
 {
     if (kv == nullptr)
@@ -85,18 +95,12 @@ bool keyValueHas(struct KeyValue *kv, char *key)
     if (key == kv->cache.key)
         return kv->cache.positionInBucket != -1;
     numeric_hash hash = hashKey(kv, key);
-    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
-        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
-        {
-            kv->cache.key = key;
-            kv->cache.hash = hash;
-            kv->cache.positionInBucket = j;
-            return true;
-        }
+
+    size_t j = findKeyInBucket(kv, key, hash);
     kv->cache.key = key;
     kv->cache.hash = hash;
-    kv->cache.positionInBucket = -1;
-    return false;
+    kv->cache.positionInBucket = j;
+    return (j != -1);
 }
 
 void *keyValueGet(struct KeyValue *kv, char *key)
@@ -111,18 +115,12 @@ void *keyValueGet(struct KeyValue *kv, char *key)
             return nullptr;
     }
     numeric_hash hash = hashKey(kv, key);
-    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
-        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
-        {
-            kv->cache.key = key;
-            kv->cache.hash = hash;
-            kv->cache.positionInBucket = j;
-            return kv->buckets[hash].entries[j].value;
-        }
+
+    size_t j = findKeyInBucket(kv, key, hash);
     kv->cache.key = key;
     kv->cache.hash = hash;
-    kv->cache.positionInBucket = -1;
-    return nullptr;
+    kv->cache.positionInBucket = j;
+    return j != -1 ? kv->buckets[hash].entries[j].value : nullptr;
 }
 
 void keyValueSet(struct KeyValue *kv, char *key, void *value)
@@ -131,15 +129,15 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
         return;
     numeric_hash hash = hashKey(kv, key);
 
-    for (size_t j = 0; j < kv->buckets[hash].length; ++j)
-        if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
-        {
-            kv->buckets[hash].entries[j].value = value;
-            kv->cache.key = key;
-            kv->cache.hash = hash;
-            kv->cache.positionInBucket = j;
-            return;
-        }
+    size_t j = findKeyInBucket(kv, key, hash);
+    if (j != -1)
+    {
+        kv->buckets[hash].entries[j].value = value;
+        kv->cache.key = key;
+        kv->cache.hash = hash;
+        kv->cache.positionInBucket = j;
+        return;
+    }
 
     // Allocate in existing bucket
     if (kv->buckets[hash].entries == nullptr)
