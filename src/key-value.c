@@ -4,7 +4,7 @@
 #include "c-polyfill.h"
 #include "panic.h"
 
-typedef unsigned short NUMERIC_HASH;
+typedef unsigned short numeric_hash;
 
 struct InternalKeyValueEntry
 {
@@ -21,7 +21,7 @@ struct KeyValueBucket
 struct KeyValueCache
 {
     char *key;
-    NUMERIC_HASH hash;
+    numeric_hash hash;
     size_t positionInBucket;
 };
 
@@ -68,11 +68,11 @@ void keyValueDeconstructor(struct KeyValue *kv)
     free(kv->buckets);
 }
 
-NUMERIC_HASH hashKey(struct KeyValue *kv, char *key)
+numeric_hash hashKey(struct KeyValue *kv, char *key)
 {
     if (kv->cache.key != nullptr && kv->cache.key == key)
         return kv->cache.hash;
-    NUMERIC_HASH hash = 0;
+    numeric_hash hash = 0;
     for (size_t i = 0; key[i] != '\0'; ++i)
         hash += key[i];
     return hash % kv->maxBuckets;
@@ -84,7 +84,7 @@ bool keyValueHas(struct KeyValue *kv, char *key)
         return false;
     if (key == kv->cache.key)
         return kv->cache.positionInBucket != -1;
-    NUMERIC_HASH hash = hashKey(kv, key);
+    numeric_hash hash = hashKey(kv, key);
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
         {
@@ -110,7 +110,7 @@ void *keyValueGet(struct KeyValue *kv, char *key)
         else
             return nullptr;
     }
-    NUMERIC_HASH hash = hashKey(kv, key);
+    numeric_hash hash = hashKey(kv, key);
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
         {
@@ -129,7 +129,7 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
 {
     if (kv == nullptr)
         return;
-    NUMERIC_HASH hash = hashKey(kv, key);
+    numeric_hash hash = hashKey(kv, key);
 
     for (size_t j = 0; j < kv->buckets[hash].length; ++j)
         if (strcmp(key, kv->buckets[hash].entries[j].key) == 0)
