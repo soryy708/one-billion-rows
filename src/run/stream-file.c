@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "stream-file.h"
 #include "../signal-handler.h"
 #include "../debug-log.h"
