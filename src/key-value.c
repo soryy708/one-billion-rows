@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "key-value.h"
 #include "c-polyfill.h"
 #include "panic.h"
@@ -72,10 +73,17 @@ numeric_hash hashKey(struct KeyValue *kv, char *key)
 {
     if (kv->cache.key != nullptr && kv->cache.key == key)
         return kv->cache.hash;
+
+    // Polynomial Rolling Hash
+    const size_t p = 29791;
     numeric_hash hash = 0;
+    int pPow = 1;
     for (size_t i = 0; key[i] != '\0'; ++i)
-        hash += key[i];
-    return hash % kv->maxBuckets;
+    {
+        hash = (hash + (key[i] - 'a' + 1) * pPow) % kv->maxBuckets;
+        pPow = (pPow * p) % kv->maxBuckets;
+    }
+    return hash;
 }
 
 size_t findKeyInBucket(struct KeyValue *kv, char *key, size_t bucket)
