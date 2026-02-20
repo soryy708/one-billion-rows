@@ -7,7 +7,8 @@ struct Station
 {
     float minimum;
     float maximum;
-    float *measurements;
+    float sum;
+    unsigned int count;
 };
 
 struct KeyValue *stations = nullptr;
@@ -25,14 +26,16 @@ void consumeEntry(char *station, float measurement)
             value->minimum = measurement;
         if (measurement > value->maximum)
             value->maximum = measurement;
-        // TODO: measurements for mean
+        value->sum += measurement;
+        ++value->count;
     }
     else
     {
         struct Station *value = malloc(sizeof(struct Station));
         value->minimum = measurement;
         value->maximum = measurement;
-        value->measurements = nullptr; // TODO
+        value->sum = measurement;
+        value->count = 1;
         keyValueSet(stations, station, value);
     }
 }
@@ -52,7 +55,7 @@ struct RunResult collectConsumedEntries()
         result.entries[i].station = entry.key;
         result.entries[i].minimum = value->minimum;
         result.entries[i].maximum = value->maximum;
-        result.entries[i].mean = 0; // TODO
+        result.entries[i].mean = value->sum / value->count;
     }
     return result;
 }
