@@ -4,8 +4,7 @@
 #include "key-value.h"
 #include "c-polyfill.h"
 #include "panic.h"
-
-typedef unsigned short numeric_hash;
+#include "hash.h"
 
 struct InternalKeyValueEntry
 {
@@ -73,17 +72,7 @@ numeric_hash hashKey(struct KeyValue *kv, char *key)
 {
     if (kv->cache.key != nullptr && kv->cache.key == key)
         return kv->cache.hash;
-
-    // Polynomial Rolling Hash
-    const size_t p = 29791;
-    numeric_hash hash = 0;
-    int pPow = 1;
-    for (size_t i = 0; key[i] != '\0'; ++i)
-    {
-        hash = (hash + (key[i] - 'a' + 1) * pPow) % kv->maxBuckets;
-        pPow = (pPow * p) % kv->maxBuckets;
-    }
-    return hash;
+    return polynomialRollingHash(key, kv->maxBuckets, 29791);
 }
 
 size_t findKeyInBucket(struct KeyValue *kv, char *key, size_t bucket)
