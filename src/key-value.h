@@ -1,3 +1,7 @@
+/**
+ * Random-access key-value data structure, indexed by strings.
+ * Aka hash-map.
+ */
 #ifndef KEY_VALUE_H_INCLUDED
 #define KEY_VALUE_H_INCLUDED
 
