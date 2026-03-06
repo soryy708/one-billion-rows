@@ -1,5 +1,12 @@
-FROM gcc:13.4.0
+FROM gcc:13.4.0 AS builder
+
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN make
-CMD ["./build/app"]
+
+FROM scratch
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app/input.txt ./input.txt
+COPY --from=builder /usr/src/app/worldcities.csv ./worldcities.csv
+COPY --from=builder /usr/src/app/build/app ./app
+CMD ["./app"]
