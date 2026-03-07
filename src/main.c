@@ -33,6 +33,7 @@ int main()
     }
     printf("}");
     gc_free(result.entries);
+    gc_sweep();
 
     return 0;
 }
