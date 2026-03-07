@@ -7,6 +7,5 @@ This is my attempt to through crunch lots of data, using C.
 ## How to run?
 
 ```sh
-docker build -t 1brc .
-docker run -it --init --rm -v "%cd%\input.txt":/usr/src/app/data/input.txt:ro 1brc ./app ./data/input.txt
+docker build -t 1brc . && docker run -it --init --rm -v "%cd%\input.txt":/usr/src/app/data/input.txt:ro 1brc ./app ./data/input.txt
 ```
