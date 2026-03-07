@@ -8,9 +8,15 @@
 #include "run/run.h"
 #include "gc.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     initSignals();
+
+    if (argc <= 1)
+    {
+        printf("Missing argument: Where\'s the input file?");
+        return 1;
+    }
 
     if (GENERATE)
     {
@@ -20,7 +26,7 @@ int main()
     else
         debugPrintf("Skipping generating inputs\n");
 
-    struct RunResult result = run();
+    struct RunResult result = run(argv[1]);
     printf("{");
     for (unsigned int i = 0; i < result.length; ++i)
     {

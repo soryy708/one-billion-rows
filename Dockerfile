@@ -6,7 +6,6 @@ RUN make
 
 FROM scratch
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/input.txt ./input.txt
 COPY --from=builder /usr/src/app/worldcities.csv ./worldcities.csv
 COPY --from=builder /usr/src/app/build/app ./app
 CMD ["./app"]

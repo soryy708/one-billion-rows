@@ -15,6 +15,6 @@ struct RunResult
     unsigned int length;
 };
 
-struct RunResult run(void);
+struct RunResult run(char *inputFilePath);
 
 #endif

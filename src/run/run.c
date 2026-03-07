@@ -23,10 +23,10 @@ void onStreamedChunk(char *chunk)
     fileStreamChunkToLine(chunk, onStreamedLine);
 }
 
-struct RunResult run(void)
+struct RunResult run(char *inputFilePath)
 {
     initFileStreamChunkToLine();
-    FILE *file = fopen("./input.txt", "rb");
+    FILE *file = fopen(inputFilePath, "rb");
     if (file == nullptr)
     {
         panic("Failed to open file for reading");
