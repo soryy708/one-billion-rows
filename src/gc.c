@@ -1,6 +1,15 @@
 #include <stdlib.h>
 #include "gc.h"
 #include "c-polyfill.h"
+#include "vector.h"
+
+struct Vector *freeableMemory = nullptr;
+struct Vector *assertFreeableMemoryVector(void)
+{
+    if (freeableMemory == nullptr)
+        freeableMemory = vectorConstructor((struct VectorOptions){QUADRATIC, sizeof(void *)});
+    return freeableMemory;
+}
 
 void *gc_malloc(size_t size)
 {
@@ -15,8 +24,18 @@ void *gc_malloc(size_t size)
 
 void gc_free(void *p)
 {
-    // TODO: Defer freeing of memory to gc_sweep
-    return free(p);
+    struct Vector *freeableMemory = assertFreeableMemoryVector();
+    if (freeableMemory == nullptr)
+    {
+        gc_sweep();
+        freeableMemory = assertFreeableMemoryVector();
+        if (freeableMemory == nullptr)
+        {
+            free(p);
+            return;
+        }
+    }
+    vectorPush(freeableMemory, p);
 }
 
 void *gc_realloc(void *p, size_t size)
@@ -30,7 +49,12 @@ void *gc_realloc(void *p, size_t size)
     return realloced;
 }
 
+void gc_sweep_item(void *p)
+{
+    free(p);
+}
+
 void gc_sweep(void)
 {
-    // TODO: Actually free the freeable memory
+    vectorForEach(assertFreeableMemoryVector(), gc_sweep_item);
 }
