@@ -94,3 +94,16 @@ void vectorForEach(struct Vector *v, void (*callback)(void *))
     for (unsigned int i = 0; i < vectorLength(v); ++i)
         callback(vectorGet(v, i));
 }
+
+void vectorEmpty(struct Vector *vector)
+{
+    if (vector == nullptr)
+        return;
+    if (vector->elements != nullptr)
+    {
+        free(vector->elements);
+        vector->elements = nullptr;
+    }
+    vector->length = 0;
+    vector->allocatedLength = 0;
+}

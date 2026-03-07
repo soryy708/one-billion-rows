@@ -56,5 +56,7 @@ void gc_sweep_item(void *p)
 
 void gc_sweep(void)
 {
-    vectorForEach(assertFreeableMemoryVector(), gc_sweep_item);
+    struct Vector *v = assertFreeableMemoryVector();
+    vectorForEach(v, gc_sweep_item);
+    vectorEmpty(v);
 }

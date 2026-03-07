@@ -20,5 +20,6 @@ unsigned int vectorLength(struct Vector *v);
 void vectorPush(struct Vector *v, void *element);
 void *vectorGet(struct Vector *v, unsigned int index);
 void vectorForEach(struct Vector *v, void (*callback)(void *));
+void vectorEmpty(struct Vector *v);
 
 #endif
