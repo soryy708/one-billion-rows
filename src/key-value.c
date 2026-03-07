@@ -5,6 +5,7 @@
 #include "c-polyfill.h"
 #include "panic.h"
 #include "hash.h"
+#include "gc.h"
 
 struct InternalKeyValueEntry
 {
@@ -34,17 +35,17 @@ struct KeyValue
 
 struct KeyValue *keyValueConstructor(struct KeyValueOptions options)
 {
-    struct KeyValue *kv = malloc(sizeof(struct KeyValue));
+    struct KeyValue *kv = gc_malloc(sizeof(struct KeyValue));
     if (kv == nullptr)
     {
         panic("OOM");
         return nullptr;
     }
     kv->maxBuckets = options.maxBuckets;
-    kv->buckets = malloc(sizeof(struct KeyValueBucket) * kv->maxBuckets);
+    kv->buckets = gc_malloc(sizeof(struct KeyValueBucket) * kv->maxBuckets);
     if (kv->buckets == nullptr)
     {
-        free(kv);
+        gc_free(kv);
         panic("OOM");
         return nullptr;
     }
@@ -64,8 +65,8 @@ void keyValueDeconstructor(struct KeyValue *kv)
     if (kv == nullptr)
         return;
     for (size_t i = 0; i < kv->maxBuckets; ++i)
-        free(kv->buckets[i].entries);
-    free(kv->buckets);
+        gc_free(kv->buckets[i].entries);
+    gc_free(kv->buckets);
 }
 
 numeric_hash hashKey(struct KeyValue *kv, char *key)
@@ -151,7 +152,7 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
     // Allocate in existing bucket
     if (kv->buckets[hash].entries == nullptr)
     {
-        kv->buckets[hash].entries = malloc(sizeof(struct InternalKeyValueEntry));
+        kv->buckets[hash].entries = gc_malloc(sizeof(struct InternalKeyValueEntry));
         if (kv->buckets[hash].entries == nullptr)
             return panic("OOM");
         kv->buckets[hash].entries[0].key = key;
@@ -177,7 +178,7 @@ void keyValueSet(struct KeyValue *kv, char *key, void *value)
         }
         int splicePosition = low;
 
-        struct InternalKeyValueEntry *temp = realloc(
+        struct InternalKeyValueEntry *temp = gc_realloc(
             kv->buckets[hash].entries,
             (kv->buckets[hash].length + 1) * sizeof(struct InternalKeyValueEntry));
         if (temp == nullptr)
@@ -210,7 +211,7 @@ struct KeyValueEntry *keyValueEntries(struct KeyValue *kv)
     if (length == 0)
         return nullptr;
 
-    struct KeyValueEntry *entries = malloc(sizeof(struct KeyValueEntry) * length);
+    struct KeyValueEntry *entries = gc_malloc(sizeof(struct KeyValueEntry) * length);
     size_t c = 0;
     for (size_t i = 0; i < kv->maxBuckets; ++i)
         for (size_t j = 0; j < kv->buckets[i].length; ++j)

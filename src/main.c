@@ -6,6 +6,7 @@
 #include "config.h"
 #include "debug-log.h"
 #include "run/run.h"
+#include "gc.h"
 
 int main()
 {
@@ -31,7 +32,7 @@ int main()
         }
     }
     printf("}");
-    free(result.entries);
+    gc_free(result.entries);
 
     return 0;
 }

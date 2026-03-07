@@ -3,6 +3,7 @@
 #include "profiling.h"
 #include "c-polyfill.h"
 #include "panic.h"
+#include "gc.h"
 
 struct ProfileMeasurement
 {
@@ -12,7 +13,7 @@ struct ProfileMeasurement
 
 struct ProfileMeasurement *profileMeasurementConstructor(void)
 {
-    struct ProfileMeasurement *profile = malloc(sizeof(struct ProfileMeasurement));
+    struct ProfileMeasurement *profile = gc_malloc(sizeof(struct ProfileMeasurement));
     if (profile == nullptr)
     {
         panic("OOM");
@@ -25,7 +26,7 @@ void profileMeasurementDestructor(struct ProfileMeasurement *profile)
 {
     if (profile != nullptr)
     {
-        free(profile);
+        gc_free(profile);
     }
 }
 

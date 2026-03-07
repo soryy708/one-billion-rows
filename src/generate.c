@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include "generate.h"
@@ -7,6 +6,7 @@
 #include "panic.h"
 #include "signal-handler.h"
 #include "debug-log.h"
+#include "gc.h"
 
 // https://simplemaps.com/data/world-cities
 char **cityNames = nullptr;
@@ -17,8 +17,8 @@ void freeCityNames()
     if (cityNames != nullptr)
     {
         for (unsigned int i = 0; i < cityNamesLength; ++i)
-            free(cityNames[i]);
-        free(cityNames);
+            gc_free(cityNames[i]);
+        gc_free(cityNames);
         cityNames = nullptr;
         cityNamesLength = 0;
     }
@@ -39,18 +39,18 @@ void pushCity(char *city)
 
     if (cityNames == nullptr)
     {
-        cityNames = malloc(sizeof(char *));
+        cityNames = gc_malloc(sizeof(char *));
         if (cityNames == nullptr)
             return panic("OOM");
     }
     else
     {
-        char **temp = realloc(cityNames, (cityNamesLength + 1) * sizeof(char *));
+        char **temp = gc_realloc(cityNames, (cityNamesLength + 1) * sizeof(char *));
         if (temp == nullptr)
             return panic("OOM");
         cityNames = temp;
     }
-    cityNames[cityNamesLength] = malloc(sizeof(char) * (length + 1));
+    cityNames[cityNamesLength] = gc_malloc(sizeof(char) * (length + 1));
     strcpy(cityNames[cityNamesLength], city);
     ++cityNamesLength;
 }

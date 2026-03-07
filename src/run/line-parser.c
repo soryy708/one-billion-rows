@@ -3,6 +3,7 @@
 #include "line-parser.h"
 #include "../c-polyfill.h"
 #include "../panic.h"
+#include "../gc.h"
 
 const struct ParsedEntry parseLine(char *line)
 {
@@ -14,7 +15,7 @@ const struct ParsedEntry parseLine(char *line)
         return (struct ParsedEntry){nullptr, 0.0f};
     }
 
-    char *station = malloc(sizeof(char) * (stationLength + 1));
+    char *station = gc_malloc(sizeof(char) * (stationLength + 1));
     if (station == nullptr)
     {
         panic("OOM");

@@ -4,13 +4,14 @@
 #include "stream-file.h"
 #include "../c-polyfill.h"
 #include "../panic.h"
+#include "../gc.h"
 
 char *chunkOverflow = nullptr;
 unsigned int chunkOverflowLength = 0;
 
 void initFileStreamChunkToLine(void)
 {
-    chunkOverflow = malloc(sizeof(char) * getStreamFileChunkSize());
+    chunkOverflow = gc_malloc(sizeof(char) * getStreamFileChunkSize());
     if (chunkOverflow == nullptr)
         return panic("OOM");
     addPanicObserver(cleanupFileStreamChunkToLine);
@@ -20,7 +21,7 @@ void cleanupFileStreamChunkToLine(void)
 {
     if (chunkOverflow != nullptr)
     {
-        free(chunkOverflow);
+        gc_free(chunkOverflow);
         chunkOverflow = nullptr;
     }
 }

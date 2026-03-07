@@ -3,6 +3,7 @@
 #include "entry-consumer.h"
 #include "../key-value.h"
 #include "../c-polyfill.h"
+#include "../gc.h"
 
 struct Station
 {
@@ -32,7 +33,7 @@ void consumeEntry(char *station, float measurement)
     }
     else
     {
-        struct Station *value = malloc(sizeof(struct Station));
+        struct Station *value = gc_malloc(sizeof(struct Station));
         value->minimum = measurement;
         value->maximum = measurement;
         value->sum = measurement;
@@ -51,7 +52,7 @@ struct RunResult collectConsumedEntries()
     struct RunResult result = (struct RunResult){nullptr, 0};
     unsigned int kvLength = keyValueLength(stations);
     if (kvLength > 0)
-        result.entries = malloc(sizeof(struct RunResultEntry) * kvLength);
+        result.entries = gc_malloc(sizeof(struct RunResultEntry) * kvLength);
     result.length = kvLength;
     struct KeyValueEntry *entries = keyValueEntries(stations);
     for (unsigned int i = 0; i < kvLength; ++i)

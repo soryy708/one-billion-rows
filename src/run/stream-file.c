@@ -7,6 +7,7 @@
 #include "../signal-handler.h"
 #include "../debug-log.h"
 #include "../panic.h"
+#include "../gc.h"
 // POSIX Specific:
 #include <sys/mman.h>
 #include <unistd.h>
@@ -19,7 +20,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
 
     unsigned int bufferSize = getStreamFileChunkSize();
 
-    char *str = malloc(sizeof(char) * (bufferSize + 1));
+    char *str = gc_malloc(sizeof(char) * (bufferSize + 1));
     if (str == nullptr)
         return panic("OOM");
     for (unsigned int i = 0; i < lastPosition / bufferSize && !signalledToStop(); ++i)
@@ -30,7 +31,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
         if (address == MAP_FAILED)
         {
             panic("mmap Failed");
-            free(str);
+            gc_free(str);
             return;
         }
 
@@ -54,7 +55,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
             }
         }
     }
-    free(str);
+    gc_free(str);
 }
 
 const unsigned int getStreamFileChunkSize()
