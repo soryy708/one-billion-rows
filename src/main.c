@@ -7,6 +7,7 @@
 #include "debug-log.h"
 #include "run/run.h"
 #include "gc.h"
+#include "arena.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +27,8 @@ int main(int argc, char *argv[])
     else
         debugPrintf("Skipping generating inputs\n");
 
-    struct RunResult result = run(argv[1]);
+    struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 128});
+    struct RunResult result = run(argv[1], arena);
 
     printf("{");
     for (unsigned int i = 0; i < result.length; ++i)
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
     }
     printf("}");
 
+    arenaDeconstructor(arena);
     gc_free(result.entries);
     gc_sweep();
 

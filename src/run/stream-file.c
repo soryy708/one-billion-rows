@@ -12,7 +12,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-void streamFile(FILE *file, FileStreamChunkObserver observer)
+void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
 {
     fseek(file, 0, SEEK_END);
     const long lastPosition = ftell(file);
@@ -37,7 +37,11 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
 
         memcpy(str, address, bufferSize);
         str[bufferSize] = '\0';
-        observer(str);
+
+        va_list args;
+        va_start(args, observer);
+        observer(str, args);
+        va_end(args);
 
         munmap(address, bufferSize);
     }
@@ -51,7 +55,11 @@ void streamFile(FILE *file, FileStreamChunkObserver observer)
             if (bytesRead > 0)
             {
                 str[bytesRead] = '\0';
-                observer(str);
+
+                va_list args;
+                va_start(args, observer);
+                observer(str, args);
+                va_end(args);
             }
         }
     }

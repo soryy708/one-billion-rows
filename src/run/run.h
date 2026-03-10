@@ -1,6 +1,8 @@
 #ifndef RUN_H_INCLUDED
 #define RUN_H_INCLUDED
 
+#include "../arena.h"
+
 struct RunResultEntry
 {
     char *station;
@@ -15,6 +17,6 @@ struct RunResult
     unsigned int length;
 };
 
-struct RunResult run(char *inputFilePath);
+struct RunResult run(char *inputFilePath, struct Arena *arena);
 
 #endif

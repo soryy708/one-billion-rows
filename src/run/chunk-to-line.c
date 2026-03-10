@@ -26,7 +26,7 @@ void cleanupFileStreamChunkToLine(void)
     }
 }
 
-void fileStreamChunkToLine(char *chunk, FileStreamLineObserver observer)
+void fileStreamChunkToLine(char *chunk, FileStreamLineObserver observer, va_list args)
 {
     unsigned int chunkLength = getStreamFileChunkSize();
     char line[chunkLength];
@@ -48,7 +48,10 @@ void fileStreamChunkToLine(char *chunk, FileStreamLineObserver observer)
             if (lineLength > 0)
             {
                 line[lineLength] = '\0';
-                observer(line);
+                va_list args2;
+                va_copy(args2, args);
+                observer(line, args2);
+                va_end(args2);
                 lineLength = 0;
             }
         }
