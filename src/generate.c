@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 #include "generate.h"
 #include "c-polyfill.h"
 #include "panic.h"
