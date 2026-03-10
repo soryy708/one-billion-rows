@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
         debugPrintf("Skipping generating inputs\n");
 
     struct RunResult result = run(argv[1]);
+
     printf("{");
     for (unsigned int i = 0; i < result.length; ++i)
     {
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
         }
     }
     printf("}");
+
     gc_free(result.entries);
     gc_sweep();
 
