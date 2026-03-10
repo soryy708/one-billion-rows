@@ -42,9 +42,11 @@ void consumeEntry(char *station, float measurement)
     }
 }
 
-int compareRunResultEntries(const struct RunResultEntry *a, const struct RunResultEntry *b)
+int compareRunResultEntries(const void *a, const void *b)
 {
-    return strcmp(a->station, b->station);
+    return strcmp(
+        ((const struct RunResultEntry *)a)->station,
+        ((const struct RunResultEntry *)b)->station);
 }
 
 struct RunResult collectConsumedEntries()
