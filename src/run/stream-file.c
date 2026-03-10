@@ -3,11 +3,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <alloca.h>
 #include "stream-file.h"
 #include "../signal-handler.h"
 #include "../debug-log.h"
 #include "../panic.h"
-#include "../gc.h"
 // POSIX Specific:
 #include <sys/mman.h>
 #include <unistd.h>
@@ -20,9 +20,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
 
     unsigned int bufferSize = getStreamFileChunkSize();
 
-    char *str = gc_malloc(sizeof(char) * (bufferSize + 1));
-    if (str == nullptr)
-        return panic("OOM");
+    char *str = alloca(sizeof(char) * (bufferSize + 1));
     for (unsigned int i = 0; i < lastPosition / bufferSize && !signalledToStop(); ++i)
     {
         debugPrintf("Reading file %.1f%%\n", 100.0f * (i * bufferSize) / lastPosition);
@@ -31,7 +29,6 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
         if (address == MAP_FAILED)
         {
             panic("mmap Failed");
-            gc_free(str);
             return;
         }
 
@@ -63,7 +60,6 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
             }
         }
     }
-    gc_free(str);
 }
 
 const unsigned int getStreamFileChunkSize()
