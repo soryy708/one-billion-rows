@@ -1,7 +1,7 @@
+#define _POSIX_C_SOURCE 1 // for `fileno` in <stdio.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "stream-file.h"
 #include "../signal-handler.h"
