@@ -8,7 +8,7 @@
 #include "../c-polyfill.h"
 #include "../panic.h"
 
-inline void onStreamedEntry(struct ParsedEntry entry)
+void onStreamedEntry(struct ParsedEntry entry)
 {
     produceEntry(entry.station, entry.measurement);
 }
