@@ -23,7 +23,33 @@ const struct ParsedEntry parseLine(char *line, struct Arena *arena)
     memcpy(station, line, stationLength);
     station[stationLength] = '\0';
 
-    const float measurement = strtof(delimiter + 1, nullptr);
+    float measurement = 0.0f;
+    if (delimiter[1] == '-')
+    {
+        if (delimiter[3] == '.')
+        {
+            // -x.y
+            measurement = -1.0f * ((delimiter[2] - '0') + (delimiter[4] - '0'));
+        }
+        else
+        {
+            // -xy.z
+            measurement = -1.0f * (10.0f * (delimiter[2] - '0') + (delimiter[3] - '0') + (delimiter[4] - '0'));
+        }
+    }
+    else
+    {
+        if (delimiter[2] == '.')
+        {
+            // x.y
+            measurement = ((delimiter[2] - '0') + (delimiter[4] - '0'));
+        }
+        else
+        {
+            // xy.z
+            measurement = (10.0f * (delimiter[2] - '0') + (delimiter[3] - '0') + (delimiter[4] - '0'));
+        }
+    }
 
     return (struct ParsedEntry){station, measurement};
 }
