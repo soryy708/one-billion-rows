@@ -35,6 +35,8 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
             return;
         }
 
+        readahead(fileno(file), i * bufferSize, bufferSize);
+
         memcpy(str, address, bufferSize);
         str[bufferSize] = '\0';
 
