@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "arena.h"
-#include "c-polyfill.h"
+#include "../c-polyfill.h"
 
 struct Metadata
 {

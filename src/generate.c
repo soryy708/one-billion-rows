@@ -7,7 +7,7 @@
 #include "panic.h"
 #include "signal-handler.h"
 #include "debug-log.h"
-#include "gc.h"
+#include "datastructures/gc.h"
 
 // https://simplemaps.com/data/world-cities
 char **cityNames = nullptr;

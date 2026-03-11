@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "gc.h"
-#include "c-polyfill.h"
+#include "../c-polyfill.h"
 #include "vector.h"
 
 struct Vector *freeableMemory = nullptr;

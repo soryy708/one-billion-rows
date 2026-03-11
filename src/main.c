@@ -6,8 +6,8 @@
 #include "config.h"
 #include "debug-log.h"
 #include "run/run.h"
-#include "gc.h"
-#include "arena.h"
+#include "datastructures/gc.h"
+#include "datastructures/arena.h"
 
 int main(int argc, char *argv[])
 {

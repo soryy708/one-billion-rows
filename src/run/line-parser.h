@@ -1,7 +1,7 @@
 #ifndef LINE_PARSER_H_INCLUDED
 #define LINE_PARSER_H_INCLUDED
 
-#include "../arena.h"
+#include "../datastructures/arena.h"
 
 struct ParsedEntry
 {

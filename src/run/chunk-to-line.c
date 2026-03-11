@@ -4,7 +4,7 @@
 #include "stream-file.h"
 #include "../c-polyfill.h"
 #include "../panic.h"
-#include "../gc.h"
+#include "../datastructures/gc.h"
 
 char *chunkOverflow = nullptr;
 unsigned int chunkOverflowLength = 0;

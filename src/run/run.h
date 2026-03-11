@@ -1,7 +1,7 @@
 #ifndef RUN_H_INCLUDED
 #define RUN_H_INCLUDED
 
-#include "../arena.h"
+#include "../datastructures/arena.h"
 
 struct RunResultEntry
 {

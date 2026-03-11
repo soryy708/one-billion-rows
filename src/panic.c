@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "panic.h"
 #include "c-polyfill.h"
-#include "gc.h"
+#include "datastructures/gc.h"
 
 PanicObserver *observers = nullptr;
 unsigned int observersLength = 0;

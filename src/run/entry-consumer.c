@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "entry-consumer.h"
-#include "../key-value.h"
+#include "../datastructures/key-value.h"
 #include "../c-polyfill.h"
-#include "../gc.h"
+#include "../datastructures/gc.h"
 
 struct Station
 {

@@ -2,9 +2,9 @@
 #include <string.h>
 #include <math.h>
 #include "key-value.h"
-#include "c-polyfill.h"
-#include "panic.h"
-#include "hash.h"
+#include "../c-polyfill.h"
+#include "../panic.h"
+#include "../hash.h"
 #include "gc.h"
 
 struct InternalKeyValueEntry
