@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 1 // for `fileno` in <stdio.h>
+#define _POSIX_C_SOURCE 200112L // for `fileno` in <stdio.h>, posix_fadvise in <fcntl.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -11,12 +11,15 @@
 // POSIX Specific:
 #include <sys/mman.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
 {
     fseek(file, 0, SEEK_END);
     const long lastPosition = ftell(file);
     rewind(file);
+
+    posix_fadvise(fileno(file), 0, lastPosition, POSIX_FADV_SEQUENTIAL);
 
     unsigned int bufferSize = getStreamFileChunkSize();
 
