@@ -24,6 +24,8 @@ void *gc_malloc(size_t size)
 
 void gc_free(void *p)
 {
+    if (p == nullptr)
+        return;
     struct Vector *freeableMemory = assertFreeableMemoryVector();
     if (freeableMemory == nullptr)
     {

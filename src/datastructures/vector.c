@@ -91,6 +91,8 @@ void *vectorGet(struct Vector *v, unsigned int index)
 
 void vectorForEach(struct Vector *v, void (*callback)(void *))
 {
+    if (v == nullptr)
+        return;
     for (unsigned int i = 0; i < vectorLength(v); ++i)
         callback(vectorGet(v, i));
 }
