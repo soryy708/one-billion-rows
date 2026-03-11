@@ -29,7 +29,13 @@ int main(int argc, char *argv[])
 
     struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 4});
     struct StringSet *stringSet = stringSetConstructor((struct StringSetOptions){arena});
+
+    struct ProfileMeasurement *prof = profileMeasurementConstructor();
+    startProfileMeasurement(prof);
     struct RunResult result = run(argv[1], stringSet);
+    endProfileMeasurement(prof);
+    debugPrintf("Took %ldms\n", getProfileElapsedTime(prof));
+    profileMeasurementDestructor(prof);
 
     printf("{");
     for (unsigned int i = 0; i < result.length; ++i)
