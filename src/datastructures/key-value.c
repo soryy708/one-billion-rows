@@ -65,7 +65,10 @@ void keyValueDeconstructor(struct KeyValue *kv)
     if (kv == nullptr)
         return;
     for (size_t i = 0; i < kv->maxBuckets; ++i)
-        gc_free(kv->buckets[i].entries);
+    {
+        if (kv->buckets[i].entries != nullptr)
+            gc_free(kv->buckets[i].entries);
+    }
     gc_free(kv->buckets);
 }
 
