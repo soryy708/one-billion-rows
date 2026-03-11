@@ -78,7 +78,7 @@ void vectorPush(struct Vector *v, void *element)
     if (v->length >= v->allocatedLength)
         return; // Panic, growVector failed
 
-    v->elements[v->options.elementSize * v->length] = element;
+    v->elements[(v->options.elementSize / sizeof(void *)) * v->length] = element;
     ++v->length;
 }
 
@@ -86,7 +86,7 @@ void *vectorGet(struct Vector *v, unsigned int index)
 {
     if (v == nullptr || index >= v->length)
         return nullptr;
-    return v->elements[v->options.elementSize * index];
+    return v->elements[(v->options.elementSize / sizeof(void *)) * index];
 }
 
 void vectorForEach(struct Vector *v, void (*callback)(void *))
