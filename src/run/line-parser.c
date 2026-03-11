@@ -4,7 +4,7 @@
 #include "../c-polyfill.h"
 #include "../panic.h"
 
-const struct ParsedEntry parseLine(char *line, struct StringSet *stringSet)
+const struct ParsedEntry parseLine(char *line, struct Arena *arena)
 {
     const char *delimiter = strchr(line, ';');
     const size_t stationLength = delimiter - line;
@@ -14,12 +14,14 @@ const struct ParsedEntry parseLine(char *line, struct StringSet *stringSet)
         return (struct ParsedEntry){nullptr, 0.0f};
     }
 
-    char *station = stringSetAdd(stringSet, line, stationLength);
+    char *station = arenaPush(arena, sizeof(char) * (stationLength + 1));
     if (station == nullptr)
     {
         panic("OOM");
         return (struct ParsedEntry){nullptr, 0.0f};
     }
+    memcpy(station, line, stationLength);
+    station[stationLength] = '\0';
 
     const float measurement = strtof(delimiter + 1, nullptr);
 

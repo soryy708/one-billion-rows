@@ -27,12 +27,11 @@ int main(int argc, char *argv[])
     else
         debugPrintf("Skipping generating inputs\n");
 
-    struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 4});
-    struct StringSet *stringSet = stringSetConstructor((struct StringSetOptions){arena});
+    struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 128});
 
     struct ProfileMeasurement *prof = profileMeasurementConstructor();
     startProfileMeasurement(prof);
-    struct RunResult result = run(argv[1], stringSet);
+    struct RunResult result = run(argv[1], arena);
     endProfileMeasurement(prof);
     debugPrintf("Took %ldms\n", getProfileElapsedTime(prof));
     profileMeasurementDestructor(prof);
@@ -49,7 +48,6 @@ int main(int argc, char *argv[])
     }
     printf("}");
 
-    stringSetDeconstructor(stringSet);
     arenaDeconstructor(arena);
     gc_free(result.entries);
     gc_sweep();
