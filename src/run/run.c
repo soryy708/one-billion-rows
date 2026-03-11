@@ -15,8 +15,8 @@ void onStreamedEntry(struct ParsedEntry entry)
 
 void onStreamedLine(char *line, va_list args)
 {
-    struct Arena *arena = va_arg(args, struct Arena *);
-    onStreamedEntry(parseLine(line, arena));
+    struct StringSet *stringSet = va_arg(args, struct StringSet *);
+    onStreamedEntry(parseLine(line, stringSet));
 }
 
 void onStreamedChunk(char *chunk, va_list args)
@@ -24,7 +24,7 @@ void onStreamedChunk(char *chunk, va_list args)
     fileStreamChunkToLine(chunk, onStreamedLine, args);
 }
 
-struct RunResult run(char *inputFilePath, struct Arena *arena)
+struct RunResult run(char *inputFilePath, struct StringSet *stringSet)
 {
     initFileStreamChunkToLine();
     FILE *file = fopen(inputFilePath, "rb");
@@ -35,7 +35,7 @@ struct RunResult run(char *inputFilePath, struct Arena *arena)
             nullptr,
             0};
     }
-    streamFile(file, onStreamedChunk, arena);
+    streamFile(file, onStreamedChunk, stringSet);
     fclose(file);
     cleanupFileStreamChunkToLine();
 

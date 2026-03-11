@@ -27,8 +27,9 @@ int main(int argc, char *argv[])
     else
         debugPrintf("Skipping generating inputs\n");
 
-    struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 128});
-    struct RunResult result = run(argv[1], arena);
+    struct Arena *arena = arenaConstructor((struct ArenaOptions){1024 * 1024 * 4});
+    struct StringSet *stringSet = stringSetConstructor((struct StringSetOptions){arena});
+    struct RunResult result = run(argv[1], stringSet);
 
     printf("{");
     for (unsigned int i = 0; i < result.length; ++i)
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
     }
     printf("}");
 
+    stringSetDeconstructor(stringSet);
     arenaDeconstructor(arena);
     gc_free(result.entries);
     gc_sweep();

@@ -1,7 +1,7 @@
 #ifndef RUN_H_INCLUDED
 #define RUN_H_INCLUDED
 
-#include "../datastructures/arena.h"
+#include "../datastructures/string-set.h"
 
 struct RunResultEntry
 {
@@ -17,6 +17,6 @@ struct RunResult
     unsigned int length;
 };
 
-struct RunResult run(char *inputFilePath, struct Arena *arena);
+struct RunResult run(char *inputFilePath, struct StringSet *stringSet);
 
 #endif
