@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 #include "profiling.h"
 #include "c-polyfill.h"
 #include "panic.h"
@@ -7,8 +7,8 @@
 
 struct ProfileMeasurement
 {
-    struct timeval start;
-    struct timeval end;
+    clock_t start;
+    clock_t end;
 };
 
 struct ProfileMeasurement *profileMeasurementConstructor(void)
@@ -34,7 +34,7 @@ void startProfileMeasurement(struct ProfileMeasurement *profile)
 {
     if (profile != nullptr)
     {
-        gettimeofday(&profile->start, nullptr);
+        profile->start = clock();
     }
 }
 
@@ -42,7 +42,7 @@ void endProfileMeasurement(struct ProfileMeasurement *profile)
 {
     if (profile != nullptr)
     {
-        gettimeofday(&profile->end, nullptr);
+        profile->end = clock();
     }
 }
 
@@ -52,5 +52,5 @@ long int getProfileElapsedTime(struct ProfileMeasurement *profile)
     {
         return 0;
     }
-    return (profile->end.tv_usec - profile->start.tv_usec);
+    return (profile->end - profile->start) / (CLOCKS_PER_SEC / 1000);
 }
