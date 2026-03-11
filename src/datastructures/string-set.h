@@ -1,6 +1,7 @@
 #ifndef STRING_SET_H_INCLUDED
 #define STRING_SET_H_INCLUDED
 
+// aka String Pool
 // Re-use strings to avoid allocating duplicates
 
 #include "arena.h"
