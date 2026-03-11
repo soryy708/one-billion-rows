@@ -34,7 +34,7 @@ const struct ParsedEntry parseLine(char *line, struct Arena *arena)
         else
         {
             // -xy.z
-            measurement = -1.0f * (10.0f * (delimiter[2] - '0') + (delimiter[3] - '0') + (delimiter[4] - '0'));
+            measurement = -1.0f * (10.0f * (delimiter[2] - '0') + (delimiter[3] - '0') + (delimiter[5] - '0'));
         }
     }
     else
@@ -42,12 +42,12 @@ const struct ParsedEntry parseLine(char *line, struct Arena *arena)
         if (delimiter[2] == '.')
         {
             // x.y
-            measurement = ((delimiter[2] - '0') + (delimiter[4] - '0'));
+            measurement = ((delimiter[1] - '0') + (delimiter[3] - '0'));
         }
         else
         {
             // xy.z
-            measurement = (10.0f * (delimiter[2] - '0') + (delimiter[3] - '0') + (delimiter[4] - '0'));
+            measurement = (10.0f * (delimiter[1] - '0') + (delimiter[2] - '0') + (delimiter[4] - '0'));
         }
     }
 
