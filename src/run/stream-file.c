@@ -24,20 +24,12 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
     unsigned int bufferSize = getStreamFileChunkSize();
 
     char *str = alloca(sizeof(char) * (bufferSize + 1));
-    for (unsigned int i = 0; i < lastPosition / bufferSize && !signalledToStop(); ++i)
+    size_t bytesRead;
+    unsigned int i = 0;
+    while (((bytesRead = fread(str, sizeof(char), bufferSize, file)) > 0) && !signalledToStop())
     {
         debugPrintf("Reading file %.1f%%\n", 100.0f * (i * bufferSize) / lastPosition);
 
-        char *address = mmap(nullptr, bufferSize, PROT_READ, MAP_PRIVATE, fileno(file), i * bufferSize);
-        if (address == MAP_FAILED)
-        {
-            panic("mmap Failed");
-            return;
-        }
-
-        readahead(fileno(file), i * bufferSize, bufferSize);
-
-        memcpy(str, address, bufferSize);
         str[bufferSize] = '\0';
 
         va_list args;
@@ -45,25 +37,7 @@ void streamFile(FILE *file, FileStreamChunkObserver observer, ...)
         observer(str, args);
         va_end(args);
 
-        munmap(address, bufferSize);
-    }
-    if (!signalledToStop())
-    {
-        unsigned int lastChunkStart = (lastPosition / bufferSize) * bufferSize;
-        if (lastChunkStart != lastPosition)
-        {
-            fseek(file, lastChunkStart, SEEK_SET);
-            unsigned int bytesRead = fread(str, sizeof(char), bufferSize, file);
-            if (bytesRead > 0)
-            {
-                str[bytesRead] = '\0';
-
-                va_list args;
-                va_start(args, observer);
-                observer(str, args);
-                va_end(args);
-            }
-        }
+        ++i;
     }
 }
 
