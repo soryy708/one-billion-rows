@@ -70,6 +70,7 @@ void keyValueDeconstructor(struct KeyValue *kv)
             gc_free(kv->buckets[i].entries);
     }
     gc_free(kv->buckets);
+    gc_free(kv);
 }
 
 numeric_hash hashKey(struct KeyValue *kv, char *key)
