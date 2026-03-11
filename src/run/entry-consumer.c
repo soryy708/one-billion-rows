@@ -5,6 +5,7 @@
 #include "../c-polyfill.h"
 #include "../datastructures/gc.h"
 #include "../datastructures/arena.h"
+#include "../panic.h";
 
 struct Station
 {
@@ -22,10 +23,14 @@ void consumeEntry(char *station, float measurement)
     if (stations == nullptr)
     {
         stations = keyValueConstructor((struct KeyValueOptions){256});
+        if (stations == nullptr)
+            return panic("OOM");
     }
     if (arena == nullptr)
     {
         arena = arenaConstructor((struct ArenaOptions){1024 * 640});
+        if (arena == nullptr)
+            return panic("OOM");
     }
     if (keyValueHas(stations, station))
     {
@@ -40,6 +45,8 @@ void consumeEntry(char *station, float measurement)
     else
     {
         struct Station *value = arenaPush(arena, sizeof(struct Station));
+        if (value == nullptr)
+            return panic("OOM");
         value->minimum = measurement;
         value->maximum = measurement;
         value->mean = measurement;
@@ -60,7 +67,14 @@ struct RunResult collectConsumedEntries()
     struct RunResult result = (struct RunResult){nullptr, 0};
     unsigned int kvLength = keyValueLength(stations);
     if (kvLength > 0)
+    {
         result.entries = gc_malloc(sizeof(struct RunResultEntry) * kvLength);
+        if (result.entries == nullptr)
+        {
+            panic("OOM");
+            return (struct RunResult){nullptr, 0};
+        }
+    }
     result.length = kvLength;
     struct KeyValueEntry *entries = keyValueEntries(stations);
     for (unsigned int i = 0; i < kvLength; ++i)
