@@ -4,6 +4,7 @@
 #include "../datastructures/key-value.h"
 #include "../c-polyfill.h"
 #include "../datastructures/gc.h"
+#include "../datastructures/arena.h"
 
 struct Station
 {
@@ -14,12 +15,17 @@ struct Station
 };
 
 struct KeyValue *stations = nullptr;
+struct Arena *arena = nullptr;
 
 void consumeEntry(char *station, float measurement)
 {
     if (stations == nullptr)
     {
         stations = keyValueConstructor((struct KeyValueOptions){256});
+    }
+    if (arena == nullptr)
+    {
+        arena = arenaConstructor((struct ArenaOptions){1024 * 640});
     }
     if (keyValueHas(stations, station))
     {
@@ -33,7 +39,7 @@ void consumeEntry(char *station, float measurement)
     }
     else
     {
-        struct Station *value = gc_malloc(sizeof(struct Station));
+        struct Station *value = arenaPush(arena, sizeof(struct Station));
         value->minimum = measurement;
         value->maximum = measurement;
         value->mean = measurement;
@@ -76,5 +82,10 @@ void cleanUpConsumedEntities()
     {
         keyValueDeconstructor(stations);
         stations = nullptr;
+    }
+    if (arena != nullptr)
+    {
+        arenaDeconstructor(arena);
+        arena = nullptr;
     }
 }
